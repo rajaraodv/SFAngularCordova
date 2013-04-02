@@ -39,7 +39,12 @@ angular.module('Opportunity', []).factory('Opportunity', function (AngularForceO
 function ListCtrl($scope, Opportunity, $location, AngularForce) {
 
     //Set login details
-    AngularForce.setCordovaLoginCred();
+    //AngularForce.setCordovaLoginCred();
+    AngularForce.login(function(){
+                       setTimeout(function () {
+                                  $scope.query();
+                                  }, 0);
+    });
 
     //Query list of Opportunities
     $scope.query = function () {
@@ -63,9 +68,9 @@ function ListCtrl($scope, Opportunity, $location, AngularForce) {
     };
 
     //Query immediately AFTER ListCtrl is loaded (i.e. wrap inside setTimeout)
-    setTimeout(function () {
-        $scope.query();
-    }, 0);
+//    setTimeout(function () {
+//        $scope.query();
+//    }, 0);
 }
 
 /**
