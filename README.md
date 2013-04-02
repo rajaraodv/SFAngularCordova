@@ -12,7 +12,7 @@
 <b>Steps:</b>
 
 1. Git Clone this SFAngularCordova app - this has a 'www' folder inside it.
-2. Replace this 'www' folder with your XCode app's 'www' folder (in <XCodeProject>/<XcodeProject>/www)
+2. Replace this 'www' folder with your XCode app's 'www' folder (in YourXCodeProject/YourXcodeProject/www)
 3. Open XCode editor, and select 'Delete' 
    *important* then select "Remove Reference" (not the directory itself)
 4. Right click on the top of the Xcode project name and select 'Add into your project'
