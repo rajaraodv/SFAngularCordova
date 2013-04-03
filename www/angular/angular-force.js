@@ -7,13 +7,28 @@
  */
 angular.module('AngularForce', []).
     service('AngularForce', function (SFConfig) {
+
+        this.login = function (callback) {
+            if (SFConfig.client) { //already logged in
+                return callback && callback();
+            }
+
+            if (location.protocol === 'file:' && cordova) { //Cordova / PhoneGap
+                return this.setCordovaLoginCred(callback);
+            } else if (typeof getSFSessionId === 'function') { //visualforce
+                //??
+            } else { //standalone / heroku / localhost
+                return this.loginWeb(callback);
+            }
+        };
+
         /**
          *  setCordovaLoginCred initializes forcetk client in Cordova/PhoneGap apps (not web apps).
          *  Usage: Import AngularForce module into your initial view and call AngularForce.setCordovaLoginCred
          *
          *  Note: This should be used when SalesForce *native-phonegap* plugin is used for logging in to SF
          */
-        this.setCordovaLoginCred = function () {
+        this.setCordovaLoginCred = function (callback) {
             if (!cordova) throw 'Cordova/PhoneGap not found.';
 
             //Call getAuthCredentials to get the initial session credentials
@@ -31,6 +46,7 @@ angular.module('AngularForce', []).
                 SFConfig.client = new forcetk.Client(credsData.clientId, credsData.loginUrl);
                 SFConfig.client.setSessionToken(credsData.accessToken, apiVersion, credsData.instanceUrl);
                 SFConfig.client.setRefreshToken(credsData.refreshToken);
+                callback();
             }
 
             function getAuthCredentialsError(error) {
@@ -43,7 +59,9 @@ angular.module('AngularForce', []).
          * Usage: Import AngularForce and call AngularForce.login(callback)
          * @param callback A callback function (usually in the same controller that initiated login)
          */
-        this.login = function (callback) {
+        this.loginWeb = function (callback) {
+            if (!SFConfig) throw 'Must set app.SFConfig where app is your AngularJS app';
+
             if (SFConfig.client) { //already loggedin
                 return callback();
             }
@@ -57,6 +75,10 @@ angular.module('AngularForce', []).
 
                     return callback();
                 });
+
+            //Set proxyUrl BEFORE login
+            ftkClientUI.client.proxyUrl = SFConfig.proxyUrl;
+
             ftkClientUI.login();
         };
     });
@@ -179,4 +201,3 @@ angular.module('AngularForceObjectFactory', []).factory('AngularForceObjectFacto
 
     return AngularForceObjectFactory;
 });
-
