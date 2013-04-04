@@ -90,19 +90,20 @@
     <!-- load our app-specific code -->
 
 </head>
-<h2>Salesforce Opportunities</h2>
+<h2>Salesforce Contacts</h2>
 
 <div ng-controller="ListCtrl" id="main" data-role="page">
 
     <div data-role="header">
-        <h1>Opportunities</h1>
+        <h1>Contacts</h1>
     </div>
 
-    <a ng-click="edit()" data-role="button" data-icon="new" class="save">New Opportunity</a>
+    <a ng-click="edit()" data-role="button" data-icon="new" class="save">New Contact</a>
 
     <div data-role="content">
         <ul data-role="listview" data-inset="true">
-            <li ng-repeat="opp in opportunities"><a ng-click="edit(opp.Id)">{{opp.Name}}</a></li>
+            <li ng-repeat="contact in contacts"><a ng-click="edit(contact.Id)">{{contact.FirstName}}
+                {{contact.LastName}}</a></li>
         </ul>
     </div>
     <a ng-click="logout()" data-role="button">Logout</a>
@@ -111,36 +112,37 @@
 
 <div ng-controller="EditCtrl" id="edit" data-role="page" ngm-swiperight="back()">
     <div data-role="header">
-        <h1>Opportunity</h1>
+        <h1>Contact</h1>
         <a data-role="button" data-rel="back">Back</a>
     </div>
     <div data-role="content">
         <div data-role="fieldcontain">
-            <label for="ProjectName">Name:</label>
-            <input type="text" id="ProjectName" ng-model="opportunity.Name ">
+            <label for="FirstName">Name:</label>
+            <input type="text" id="FirstName" ng-model="contact.FirstName">
         </div>
         <div data-role="fieldcontain">
-            <label for="ProjectId">Id:</label>
-            <input type="text" id="ProjectId" disabled="disabled" ng-model="opportunity.Id ">
-        </div>
-        <div data-role="fieldcontain">
-            <label for="ExpectedRevenue">ExpectedRevenue:</label>
-            <input type="text" id="ExpectedRevenue" disabled="disabled" ng-model="opportunity.ExpectedRevenue ">
+            <label for="LastName">LastName:</label>
+            <input type="text" id="LastName" ng-model="contact.LastName">
         </div>
 
         <div data-role="fieldcontain">
-            <label for="StageName">StageName:</label>
-            <input type="text" id="StageName" ng-model="opportunity.StageName ">
+            <label for="Title">Title:</label>
+            <input type="text" id="Title" ng-model="contact.Title">
         </div>
 
         <div data-role="fieldcontain">
-            <label for="CloseDate">CloseDate:</label>
-            <input type="text" id="CloseDate" ng-model="opportunity.CloseDate ">
+            <label for="Email">Email:</label>
+            <input type="text" id="Email" ng-model="contact.Email">
+        </div>
+
+        <div data-role="fieldcontain">
+            <label for="Phone">Phone:</label>
+            <input type="text" id="Phone" ng-model="contact.Phone">
         </div>
         <button ng-click="save()" ng-disabled="isClean()" data-role="button" data-icon="check" data-inline="true"
                 data-theme="b" class="save">Save
         </button>
-        <button ng-click="destroy()" ng-show="opportunity.Id" data-role="button" data-icon="delete" data-inline="true"
+        <button ng-click="destroy()" ng-show="contact.Id" data-role="button" data-icon="delete" data-inline="true"
                 class="destroy">Delete
         </button>
 

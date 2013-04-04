@@ -1,55 +1,54 @@
 /**
  * bootStrapAngular is where you setup your angular app. For example,
  * the below create 'MyOppApp' app (module) and adds 'AngularForce', 'AngularForceObjectFactory' and
- * 'Opportunity' modules as its dependencies
+ * 'Contact' modules as its dependencies
  *
  * PS: This function is called when jquery.ready is triggered in index.html
  */
 function bootStrapAngular() {
-    var angularApp = angular.module('MyOppApp', ['AngularForce', 'AngularForceObjectFactory', 'Opportunity']);
+    var angularApp = angular.module('MyContactApp', ['AngularForce', 'AngularForceObjectFactory', 'Contact']);
     angularApp.constant('SFConfig', {});
     angularApp.config(function ($routeProvider) {
-        $routeProvider.when('/edit/:oppId', { templateUrl: '#edit', onActivate: 'getOpportunity(oppId)'});
+        $routeProvider.when('/edit/:contactId', { templateUrl: '#edit', onActivate: 'getContact(contactId)'})
+            .when('/', { templateUrl: '#main', onActivate: 'query()'});
     });
-    //load 'opportunity' module
-    angular.bootstrap(document, ['MyOppApp']);
-
+    //load 'contact' module
+    angular.bootstrap(document, ['MyContactApp']);
 }
 
 /**
  * Describe Salesforce object to be used in the app. For example: Below AngularJS factory shows how to describe and
- * create an 'Opportunity' object. And then set its type, fields, where-clause etc.
+ * create an 'Contact' object. And then set its type, fields, where-clause etc.
  *
  *  PS: This module is injected into ListCtrl, EditCtrl etc. controllers to further consume the object.
  */
-angular.module('Opportunity', []).factory('Opportunity', function (AngularForceObjectFactory) {
-    var Opportunity = AngularForceObjectFactory({type: 'Opportunity', fields: ['Name', 'ExpectedRevenue', 'StageName', 'CloseDate', 'Id'], where: 'WHERE IsWon = TRUE'});
-    return Opportunity;
+angular.module('Contact', []).factory('Contact', function (AngularForceObjectFactory) {
+    var Contact = AngularForceObjectFactory({type: 'Contact', fields: ['FirstName', 'LastName', 'Title', 'Phone', 'Email', 'Id'], where: ''});
+    return Contact;
 });
 
 /**
  * List Controller function controls JQM list view. It handles actions like object 'query', 'edit' & 'logout' etc
  *
  * @param $scope  AngularJS Scope Object
- * @param Opportunity AngularJS module that represents an actual Salesforce Object Class
+ * @param Contact AngularJS module that represents an actual Salesforce Object Class
  * @param $location  AngularJS Location service - Used to change JQM page
  * @param AngularForce AngularJS + forcetk glue - Used for AJAX calls
  * @constructor
  */
-function ListCtrl($scope, Opportunity, $location, AngularForce) {
-
+function ListCtrl($scope, Contact, $location, AngularForce) {
     //Set login details
     //AngularForce.setCordovaLoginCred();
-    AngularForce.login(function(){
-                       setTimeout(function () {
-                                  $scope.query();
-                                  }, 0);
+    AngularForce.login(function () {
+        setTimeout(function () {
+            $scope.query();
+        }, 0);
     });
 
     //Query list of Opportunities
     $scope.query = function () {
-        Opportunity.query(function (data) {
-            $scope.opportunities = data.records;
+        Contact.query(function (data) {
+            $scope.contacts = data.records;
             $scope.$apply();//Required coz sfdc uses jquery.ajax
         });
     };
@@ -66,11 +65,6 @@ function ListCtrl($scope, Opportunity, $location, AngularForce) {
             sfOAuthPlugin.logout();
         }
     };
-
-    //Query immediately AFTER ListCtrl is loaded (i.e. wrap inside setTimeout)
-//    setTimeout(function () {
-//        $scope.query();
-//    }, 0);
 }
 
 /**
@@ -79,48 +73,57 @@ function ListCtrl($scope, Opportunity, $location, AngularForce) {
  * @param $location  AngularJS Location service - Used to change JQM page
  * @param $routeParams AngularJS Route obj - Contains route url's parameters
  * @param AngularForce AngularJS + forcetk glue - Used for AJAX calls
- * @param Opportunity Salesforce Object described as AngularJS Module that returns AngularForceObjectFactory
+ * @param Contact Salesforce Object described as AngularJS Module that returns AngularForceObjectFactory
  * @constructor
  */
-function EditCtrl($scope, $location, $routeParams, AngularForce, Opportunity) {
+function EditCtrl($scope, $location, $routeParams, AngularForce, Contact) {
     var self = this;
 
-    $scope.getOpportunity = function () {
-        Opportunity.get({id: $routeParams.oppId}, function (opp) {
-            self.original = opp;
-            $scope.opportunity = new Opportunity(self.original);
+    $scope.getContact = function () {
+        $scope.contact = new Contact({});//reset old one
+        if (!$routeParams.contactId)
+            return;
+
+        Contact.get({id: $routeParams.contactId}, function (contact) {
+            self.original = contact;
+            $scope.contact = new Contact(self.original);
             $scope.$apply();//Required coz sfdc/forcetk uses jquery.ajax
         });
 
-        //switch 'save' function to saveNew or Update depending on existence of 'oppId'
-        $scope.save = $routeParams.oppId && $routeParams.oppId != "" ? $scope.update : $scope.saveNew;
+        $scope.save = function () {
+            if ($routeParams.contactId && $routeParams.contactId != "undefined" && $routeParams.contactId != "") {
+                $scope.update();
+            } else {
+                $scope.saveNew();
+            }
+        };
     };
 
-    //Save's a new Opportunity object
+    //Save's a new Contact object
     $scope.saveNew = function () {
-        Opportunity.save($scope.opportunity, function (opportunity) {
-            var o = opportunity;
+        Contact.save($scope.contact, function (contact) {
+            var o = contact;
             $scope.$apply(function () {
                 $location.path('/edit/' + o.id);
             });
         });
     };
 
-    // Update an existing opportunity
+    // Update an existing contact
     $scope.update = function () {
-        $scope.opportunity.update(function () {
+        $scope.contact.update(function () {
             $scope.$apply(function () {
                 $location.path('/');
             });
         });
     };
 
-    //check if opportunity is not edited
+    //check if contact is not edited
     $scope.isClean = function () {
-        return angular.equals(self.original, $scope.opportunity);
+        return angular.equals(self.original, $scope.contact);
     };
 
-    //delete opportunity
+    //delete contact
     $scope.destroy = function () {
         self.original.destroy(function () {
             $scope.$apply(function () {
